@@ -9,7 +9,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="ragwort",
-    description="A different way of defining slash commands in pycord.",
+    description="Unstable experiments with pycord.",
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
     author="AstreaTSS",

@@ -1,11 +1,11 @@
+import discord
 import typing_extensions as typing
 
-import discord
-
 if typing.TYPE_CHECKING:
-    from discord.commands.options import InputType
+    from discord.commands.options import InputType, AutocompleteFunction
 
 __all__ = ("Option", "ParamInfo", "RagwortOption", "RagwortParamInfo")
+
 
 class ParamInfo:
     __all__ = (
@@ -33,6 +33,7 @@ class ParamInfo:
         choices: list[discord.OptionChoice | typing.Any] | None,
         default: typing.Any,
         required: bool,
+        autocomplete: "AutocompleteFunction | None" = None,
         min_value: float | None,
         max_value: float | None,
         min_length: int | None,
@@ -47,6 +48,7 @@ class ParamInfo:
         self.choices = choices
         self.default = default
         self.required = required
+        self.autocomplete = autocomplete
         self.min_value = min_value
         self.max_value = max_value
         self.min_length = min_length
@@ -62,6 +64,7 @@ class ParamInfo:
             "choices": self.choices,
             "default": self.default,
             "required": self.required,
+            "autocomplete": self.autocomplete,
             "min_value": self.min_value,
             "max_value": self.max_value,
             "min_length": self.min_length,
@@ -93,6 +96,7 @@ def Option(
     choices: list[discord.OptionChoice | typing.Any] | None = None,
     default: typing.Any = discord.MISSING,
     required: bool = True,
+    autocomplete: "AutocompleteFunction | None" = None,
     min_value: float | None = None,
     max_value: float | None = None,
     min_length: int | None = None,
@@ -108,6 +112,7 @@ def Option(
         choices=choices,
         default=default,
         required=required,
+        autocomplete=autocomplete,
         min_value=min_value,
         max_value=max_value,
         min_length=min_length,
@@ -116,6 +121,7 @@ def Option(
         name_localizations=name_localizations,
         description_localizations=description_localizations,
     )
+
 
 RagwortOption = Option
 RagwortParamInfo = ParamInfo
