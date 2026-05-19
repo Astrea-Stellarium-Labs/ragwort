@@ -1,6 +1,6 @@
 """
 Ragwort
-A different way of defining slash commands in pycord."
+Unstable experiments with pycord.
 :copyright: (c) 2026-present AstreaTSS
 :license: MIT, see LICENSE for more details.
 """
