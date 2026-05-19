@@ -125,5 +125,5 @@ async def my_command(self, ctx: discord.ApplicationContext):
 
 ### Other Notes
 
-- Auto defer is applied in the following order: command level, then cog level, then bot level. This means that if a command has auto defer disabled (with `enabled=False`), but the cog or bot it's in has it enabled, the command will *not* be deferred. This is useful for commands that send modals.
+- Auto defer is applied in the following order: command level, then cog level, then bot level. This means that if a command has auto defer disabled (with `enabled=False`), but the cog or bot has it enabled, the command will *not* be deferred. This is useful for commands that send modals.
 - Auto defer partially works with bridge commands; the slash variant of the command will be deferred, but the prefixed variant may not be.
