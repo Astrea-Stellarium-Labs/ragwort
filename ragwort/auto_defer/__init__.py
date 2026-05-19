@@ -7,6 +7,13 @@ import typing_extensions as typing
 __all__ = ("AutoDefer", "auto_defer", "cog_auto_defer", "setup_auto_defer")
 
 
+_SlashCommandT = typing.TypeVar(
+    "_SlashCommandT", discord.SlashCommand, typing.Callable[..., typing.Coroutine]
+)
+
+_CogTypeT = typing.TypeVar("_CogTypeT", bound=type[discord.Cog])
+
+
 class AutoDefer:
     def __init__(
         self,
@@ -42,11 +49,6 @@ class AutoDefer:
                 await ctx.defer(ephemeral=self.ephemeral)
 
 
-_SlashCommandT = typing.TypeVar(
-    "_SlashCommandT", discord.SlashCommand, typing.Callable[..., typing.Coroutine]
-)
-
-
 def auto_defer(
     enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0
 ) -> typing.Callable[[_SlashCommandT], _SlashCommandT]:
@@ -72,8 +74,8 @@ def add_cog_auto_defer(
 
 def cog_auto_defer(
     enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0
-) -> typing.Callable[[type[discord.Cog]], type[discord.Cog]]:
-    def wrapper(cls: type[discord.Cog]) -> type[discord.Cog]:
+) -> typing.Callable[[_CogTypeT], _CogTypeT]:
+    def wrapper(cls: _CogTypeT) -> _CogTypeT:
         add_cog_auto_defer(
             cls, enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer
         )
