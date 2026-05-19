@@ -31,6 +31,7 @@ bot.add_application_command(test)  # only needed if the command is not in a cog
 
 > [!TIP]
 > You can also use `from ragwort import X` for individual imports if you prefer.
+>
 > `ragwort` frequently also aliases classes and functions to make overlap between `ragwort` and `discord` easier to avoid; for example, instead of `ragwort.slash_command`, you could use `ragwort_slash_command`.
 
 ### Subcommands
