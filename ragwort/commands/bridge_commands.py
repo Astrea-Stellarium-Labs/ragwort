@@ -159,8 +159,6 @@ class RagwortBridgeExtCommand(commands.Command):
                     " commands. Use BridgeOption instead."
                 )
 
-        self._callback = _overwrite_defaults(self.callback, self.params)
-
     @property
     def params(self) -> dict[str, inspect.Parameter]:
         return self._params
@@ -208,6 +206,7 @@ class RagwortBridgeExtCommand(commands.Command):
             )
 
         self._params = new_parameters
+        self._callback = _overwrite_defaults(self.callback, new_parameters)
 
     async def dispatch_error(
         self, ctx: bridge.BridgeExtContext, error: Exception
