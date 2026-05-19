@@ -8,16 +8,16 @@ from discord.ext import commands
 from . import slash_param
 
 __all__ = (
-    "SlashCommand",
-    "SlashCommandGroup",
-    "slash_command",
-    "command",
-    "application_command",
-    "ragwort_command",
-    "ragwort_slash_command",
-    "ragwort_application_command",
     "RagwortSlashCommand",
     "RagwortSlashCommandGroup",
+    "SlashCommand",
+    "SlashCommandGroup",
+    "application_command",
+    "command",
+    "ragwort_application_command",
+    "ragwort_command",
+    "ragwort_slash_command",
+    "slash_command",
 )
 
 T = typing.TypeVar("T")
@@ -25,9 +25,9 @@ T = typing.TypeVar("T")
 
 class RagwortSlashCommand(discord.SlashCommand):
     def _get_signature_parameters(self) -> OrderedDict[str, inspect.Parameter]:
-        old_parameters: OrderedDict[
-            str, inspect.Parameter
-        ] = super()._get_signature_parameters()
+        old_parameters: OrderedDict[str, inspect.Parameter] = (
+            super()._get_signature_parameters()
+        )
         new_parameters: OrderedDict[str, inspect.Parameter] = OrderedDict()
 
         # long time no see, qualname hack
@@ -52,11 +52,10 @@ class RagwortSlashCommand(discord.SlashCommand):
                 )
             )
 
-            if param.annotation is param.empty:
-                if param_info.input_type is None:
-                    raise ValueError(
-                        f"No provided type for {param.name} for {self.qualified_name}"
-                    )
+            if param.annotation is param.empty and param_info.input_type is None:
+                raise ValueError(
+                    f"No provided type for {param.name} for {self.qualified_name}"
+                )
 
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation

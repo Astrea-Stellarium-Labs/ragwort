@@ -5,28 +5,26 @@ from collections import OrderedDict
 
 import discord
 import typing_extensions as typing
-from discord.ext import bridge
-from discord.ext import commands
+from discord.ext import bridge, commands
 from discord.ext.bridge.core import AttachmentConverter
 
-from . import slash_commands
-from . import slash_param
+from . import slash_commands, slash_param
 
 __all__ = (
-    "BridgeSlashCommand",
-    "BridgeExtCommand",
-    "BridgeSlashGroup",
-    "BridgeExtGroup",
     "BridgeCommand",
     "BridgeCommandGroup",
-    "bridge_command",
-    "bridge_group",
-    "RagwortBridgeSlashCommand",
-    "RagwortBridgeExtCommand",
-    "RagwortBridgeSlashGroup",
-    "RagwortBridgeExtGroup",
+    "BridgeExtCommand",
+    "BridgeExtGroup",
+    "BridgeSlashCommand",
+    "BridgeSlashGroup",
     "RagwortBridgeCommand",
     "RagwortBridgeCommandGroup",
+    "RagwortBridgeExtCommand",
+    "RagwortBridgeExtGroup",
+    "RagwortBridgeSlashCommand",
+    "RagwortBridgeSlashGroup",
+    "bridge_command",
+    "bridge_group",
     "ragwort_bridge_command",
     "ragwort_bridge_group",
 )
@@ -81,9 +79,9 @@ def _overwrite_defaults(
 
 class RagwortBridgeSlashCommand(bridge.BridgeSlashCommand):
     def _get_signature_parameters(self) -> OrderedDict[str, inspect.Parameter]:
-        old_parameters: OrderedDict[
-            str, inspect.Parameter
-        ] = super()._get_signature_parameters()
+        old_parameters: OrderedDict[str, inspect.Parameter] = (
+            super()._get_signature_parameters()
+        )
         new_parameters: OrderedDict[str, inspect.Parameter] = OrderedDict()
 
         required_params = (
@@ -107,11 +105,10 @@ class RagwortBridgeSlashCommand(bridge.BridgeSlashCommand):
                 )
             )
 
-            if param.annotation is param.empty:
-                if param_info.input_type is None:
-                    raise ValueError(
-                        f"No provided type for {param.name} for {self.qualified_name}"
-                    )
+            if param.annotation is param.empty and param_info.input_type is None:
+                raise ValueError(
+                    f"No provided type for {param.name} for {self.qualified_name}"
+                )
 
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation
@@ -165,11 +162,10 @@ class RagwortBridgeExtCommand(commands.Command):
                 )
             )
 
-            if param.annotation is param.empty:
-                if param_info.input_type is None:
-                    raise ValueError(
-                        f"No provided type for {param.name} for {self.qualified_name}"
-                    )
+            if param.annotation is param.empty and param_info.input_type is None:
+                raise ValueError(
+                    f"No provided type for {param.name} for {self.qualified_name}"
+                )
 
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation
@@ -199,8 +195,7 @@ class RagwortBridgeExtCommand(commands.Command):
         if param.annotation is discord.Attachment:
             # skip the parameter checks for bridge attachments
             return await commands.run_converters(ctx, AttachmentConverter, None, param)
-        else:
-            return await super().transform(ctx, param)
+        return await super().transform(ctx, param)
 
 
 class RagwortBridgeSlashGroup(slash_commands.SlashCommandGroup):
@@ -259,7 +254,7 @@ class RagwortBridgeCommandGroup(RagwortBridgeCommand):
     ext_variant: RagwortBridgeExtGroup
     slash_variant: RagwortBridgeSlashGroup
 
-    def __init__(self, callback, *args, **kwargs):
+    def __init__(self, callback, *_, **kwargs):
         ext_var = RagwortBridgeExtGroup(callback, **kwargs)
         kwargs.update({"name": ext_var.name})
         super().__init__(
