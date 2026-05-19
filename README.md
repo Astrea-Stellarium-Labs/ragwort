@@ -84,7 +84,6 @@ import discord
 import ragwort
 
 bot = discord.Bot(...)
-
 ragwort.setup_auto_defer(bot)
 ```
 
@@ -97,7 +96,11 @@ ragwort.setup_auto_defer(bot, default=False)  # only defers extensions and comma
 # or
 ragwort.setup_auto_defer(
     bot,
-    default=ragwort.AutoDefer(enabled=True, ephemeral=False, time_until_defer=0.0)  # allows more custom behavior
+    default=ragwort.AutoDefer(
+        enabled=True,
+        ephemeral=False,
+        time_until_defer=0.0
+    )  # allows more custom behavior
 )
 ```
 
