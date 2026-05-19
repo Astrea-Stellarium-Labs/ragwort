@@ -39,7 +39,7 @@ class AutoDefer:
                     self.time_until_defer, loop.create_task, self.defer(ctx)
                 )
             else:
-                await ctx.defer(ephemeral=self.ephemeral)
+                await self.defer(ctx)
 
     async def defer(self, ctx: discord.ApplicationContext) -> None:
         if not ctx.response.is_done():
@@ -120,11 +120,12 @@ def _wrap_invoke_application_command(
     return new_invoke
 
 
-def setup_auto_defer(
-    bot: discord.Bot, default_auto_defer: AutoDefer | None = None
-) -> None:
-    if default_auto_defer is not None:
-        bot.__default_auto_defer__ = default_auto_defer
+def setup_auto_defer(bot: discord.Bot, *, default: AutoDefer | bool = True) -> None:
+    if default is not False:
+        if default is True:
+            default = AutoDefer()
+
+        bot.__default_auto_defer__ = default
 
     bot.invoke_application_command = _wrap_invoke_application_command(
         bot.invoke_application_command
