@@ -92,7 +92,10 @@ ragwort.setup_auto_defer(bot)
 By default, `setup_auto_defer` enables auto defer for all commands. However, you can change `ragwort.setup_auto_defer` to whatever you desire:
 
 ```python
-ragwort.setup_auto_defer(bot, default=False)  # only defers extensions and commands marked to be autodeferred - see below
+# only defers extensions and commands marked
+# to be autodeferred - see the next sections
+ragwort.setup_auto_defer(bot, default=False)
+
 # or
 ragwort.setup_auto_defer(
     bot,
@@ -121,7 +124,7 @@ class MyCog(discord.Cog):
 Finally, you can set up auto defer at the command level by using the `auto_defer` decorator. This will apply the auto defer settings to that specific command:
 
 ```python
-@ragwort.slash_command()
+@ragwort.slash_command()  # works for normal slash commands too
 @ragwort.auto_defer(enabled=True, ephemeral=False, time_until_defer=0.0)
 async def my_command(self, ctx: discord.ApplicationContext):
     await ctx.respond("Hello, World!")
