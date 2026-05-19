@@ -1,17 +1,8 @@
-"""
-Ragwort
-A different way of defining slash commands in pycord."
-:copyright: (c) 2026-present AstreaTSS
-:license: MIT, see LICENSE for more details.
-"""
-
-__version__ = "0.1.0"
-
-
-from .commands import *
+from .bridge_commands import *
+from .slash_commands import *
+from .slash_param import *
 
 __all__ = (
-    "__version__",
     "SlashCommand",
     "slash_command",
     "command",

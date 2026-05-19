@@ -23,19 +23,20 @@ __all__ = (
 T = typing.TypeVar("T")
 
 
-class RagwortCommandBase:
+class RagwortSlashCommand(discord.SlashCommand):
     def _get_signature_parameters(self) -> OrderedDict[str, inspect.Parameter]:
         old_parameters: OrderedDict[
             str, inspect.Parameter
         ] = super()._get_signature_parameters()
         new_parameters: OrderedDict[str, inspect.Parameter] = OrderedDict()
 
+        # long time no see, qualname hack
         required_params = (
-            ["self", "context"] if self.attached_to_group or self.cog else ["context"]
+            2 if self.attached_to_group or "." in self.callback.__qualname__ else 1
         )
 
         for index, param in enumerate(old_parameters.values()):
-            if index < len(required_params):
+            if index < required_params:
                 new_parameters[param.name] = param
                 continue
 
@@ -65,10 +66,6 @@ class RagwortCommandBase:
             )
 
         return new_parameters
-
-
-class RagwortSlashCommand(RagwortCommandBase, discord.SlashCommand):
-    pass
 
 
 class RagwortSlashCommandGroup(discord.SlashCommandGroup):
