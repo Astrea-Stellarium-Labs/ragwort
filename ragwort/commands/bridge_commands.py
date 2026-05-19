@@ -24,9 +24,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-import copy
 import functools
 import inspect
+import types
 from collections import OrderedDict
 
 import discord
@@ -58,20 +58,27 @@ __all__ = (
 _C = typing.TypeVar("_C", bound=typing.Callable)
 
 
+def _copy_func(f: _C) -> _C:
+    """Based on https://stackoverflow.com/a/13503277"""
+    g = types.FunctionType(
+        f.__code__,
+        f.__globals__,
+        name=f.__name__,
+        argdefs=f.__defaults__,
+        closure=f.__closure__,
+    )
+    g = functools.update_wrapper(g, f)
+    g.__kwdefaults__ = f.__kwdefaults__
+    return g
+
+
 def _overwrite_defaults(
     func: _C,
     parameters: typing.Mapping[str, inspect.Parameter],
 ) -> _C:
-    func_copy = copy.copy(func)
-    func_to_parse = func_copy
+    func_copy = _copy_func(func)
 
-    partial_func = False
-
-    if isinstance(func_copy, functools.partial):
-        func_to_parse = func_copy.func
-        partial_func = True
-
-    old_kwarg_defaults = func_to_parse.__kwdefaults__ or {}
+    old_kwarg_defaults = func_copy.__kwdefaults__ or {}
 
     new_defaults = []
     new_kwarg_defaults = {}
@@ -90,15 +97,8 @@ def _overwrite_defaults(
         else:
             new_defaults.append(default)
 
-    func_to_parse.__defaults__ = tuple(new_defaults) if new_defaults else None
-    func_to_parse.__kwdefaults__ = new_kwarg_defaults or None
-
-    if partial_func:
-        func_copy = functools.partial(
-            func_to_parse, *func_copy.args, **func_copy.keywords
-        )
-    else:
-        func_copy = func_to_parse
+    func_copy.__defaults__ = tuple(new_defaults) if new_defaults else None
+    func_copy.__kwdefaults__ = new_kwarg_defaults or None
 
     return func_copy
 
