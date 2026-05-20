@@ -56,6 +56,7 @@ __all__ = (
 )
 
 _C = typing.TypeVar("_C", bound=typing.Callable)
+_AC = typing.TypeVar("_AC", bound=typing.Callable[..., typing.Coroutine])
 
 
 def _copy_func(f: _C) -> _C:
@@ -139,8 +140,14 @@ class RagwortBridgeSlashCommand(bridge.BridgeSlashCommand):
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation
 
+            option = param_info.generate_option()
+            if self.__original_kwargs__.get(f"_{option.name}_ragwort_autocomplete"):
+                option.autocomplete = self.__original_kwargs__[
+                    f"_{option.name}_ragwort_autocomplete"
+                ]
+
             new_parameters[param.name] = param.replace(
-                default=param.empty, annotation=param_info.generate_option()
+                default=param.empty, annotation=option
             )
 
         return new_parameters
@@ -265,6 +272,29 @@ class RagwortBridgeCommand(bridge.BridgeCommand):
             "ext_variant", RagwortBridgeExtCommand(callback, **kwargs)
         )
         super().__init__(callback, **kwargs)
+
+    def autocomplete(self, option_name: str) -> typing.Callable[[_AC], _AC]:
+        def wrapper(call: _AC) -> _AC:
+            if not inspect.iscoroutinefunction(call):
+                raise TypeError("Autocomplete must be coroutine")
+
+            if not self.slash_variant.options:
+                raise ValueError("No options defined for this command")
+
+            for option in self.slash_variant.options:
+                if option.name == option_name:
+                    option.autocomplete = call
+                    # silly workaround to get around pycord regenerating options each time
+                    self.slash_variant.__original_kwargs__[
+                        f"_{option_name}_ragwort_autocomplete"
+                    ] = call
+                    break
+            else:
+                raise ValueError(f"No option found for name: {option_name}")
+
+            return call
+
+        return wrapper
 
 
 class RagwortBridgeCommandGroup(RagwortBridgeCommand):

@@ -3,6 +3,7 @@ The MIT License (MIT)
 
 Copyright (c) 2015-2021 Rapptz
 Copyright (c) 2021-present Pycord Development
+Copyright (c) 2023-present LordOfPolls
 Copyright (c) 2026-present AstreaTSS
 
 Permission is hereby granted, free of charge, to any person obtaining a
@@ -46,7 +47,9 @@ __all__ = (
     "slash_command",
 )
 
-T = typing.TypeVar("T")
+
+_T = typing.TypeVar("_T")
+_AC = typing.TypeVar("_AC", bound=typing.Callable[..., typing.Coroutine])
 
 
 class RagwortSlashCommand(discord.SlashCommand):
@@ -86,16 +89,45 @@ class RagwortSlashCommand(discord.SlashCommand):
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation
 
+            option = param_info.generate_option()
+            if self.__original_kwargs__.get(f"_{option.name}_ragwort_autocomplete"):
+                option.autocomplete = self.__original_kwargs__[
+                    f"_{option.name}_ragwort_autocomplete"
+                ]
+
             new_parameters[param.name] = param.replace(
-                default=param.empty, annotation=param_info.generate_option()
+                default=param.empty, annotation=option
             )
 
         return new_parameters
 
+    def autocomplete(self, option_name: str) -> typing.Callable[[_AC], _AC]:
+        def wrapper(call: _AC) -> _AC:
+            if not inspect.iscoroutinefunction(call):
+                raise TypeError("Autocomplete must be coroutine")
+
+            if not self.options:
+                raise ValueError("No options defined for this command")
+
+            for option in self.options:
+                if option.name == option_name:
+                    option.autocomplete = call
+                    # silly workaround to get around pycord regenerating options each time
+                    self.__original_kwargs__[f"_{option_name}_ragwort_autocomplete"] = (
+                        call
+                    )
+                    break
+            else:
+                raise ValueError(f"No option found for name: {option_name}")
+
+            return call
+
+        return wrapper
+
 
 class RagwortSlashCommandGroup(discord.SlashCommandGroup):
     def command(
-        self, cls: type[T] = RagwortSlashCommand, **kwargs
+        self, cls: type[_T] = RagwortSlashCommand, **kwargs
     ) -> typing.Callable[[typing.Callable], RagwortSlashCommand]:
         return super().command(cls=cls, **kwargs)
 

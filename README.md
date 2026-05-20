@@ -73,6 +73,35 @@ async def test(
 bot.add_bridge_command(test)  # only needed if the command is not in a cog
 ```
 
+### Autocomplete
+
+`ragwort` also adds a new way of handling autocomplete functions for slash commands and bridge commands:
+
+```python
+@ragwort.slash_command(name="animal")
+async def animal_command(
+    ctx: discord.ApplicationContext,
+    animal_type: str = ragwort.Option(
+        "The type of animal.", choices=["Marine", "Land"]
+    ),
+    animal: str = ragwort.Option("The animal you want to pick."),
+):
+    await ctx.respond(
+        f"You picked an animal type of `{animal_type}` that led you to pick `{animal}`!"
+    )
+
+
+@animal_command.autocomplete("animal")
+async def animal_autocomplete(ctx: discord.AutocompleteContext):
+    animal_type = ctx.options["animal_type"]
+    if animal_type == "Marine":
+        options = ["Whale", "Shark", "Fish", "Octopus", "Turtle"]
+    else:
+        options = ["Snake", "Wolf", "Lizard", "Lion", "Bird"]
+
+    return [o for o in options if o.lower().startswith(ctx.value.lower())]
+```
+
 ## Auto Defer
 
 `ragwort` provides a way of making all slash commands automatically defer their responses, and the ability to change how said auto defer works at the bot, cog, and command levels.
