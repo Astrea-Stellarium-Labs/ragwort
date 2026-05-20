@@ -33,7 +33,8 @@ __all__ = ("AutoDefer", "auto_defer", "cog_auto_defer", "setup_auto_defer")
 
 
 _SlashCommandT = typing.TypeVar(
-    "_SlashCommandT", discord.SlashCommand, typing.Callable[..., typing.Coroutine]
+    "_SlashCommandT",
+    bound=discord.SlashCommand | typing.Callable[..., typing.Coroutine],
 )
 
 _CogTypeT = typing.TypeVar("_CogTypeT", bound=type[discord.Cog])
@@ -78,9 +79,14 @@ def auto_defer(
     enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0
 ) -> typing.Callable[[_SlashCommandT], _SlashCommandT]:
     def wrapper(func: _SlashCommandT) -> _SlashCommandT:
-        func.__auto_defer__ = AutoDefer(
-            enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer
-        )
+        if isinstance(func, discord.SlashCommand):
+            func._callback.__auto_defer__ = AutoDefer(
+                enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer
+            )
+        else:
+            func.__auto_defer__ = AutoDefer(
+                enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer
+            )
         return func
 
     return wrapper
@@ -116,12 +122,6 @@ def _wrap_invoke_application_command(
 ):
     async def new_invoke(ctx: discord.ApplicationContext) -> None:
         if (
-            ctx.command is not None
-            and (cmd_auto_defer := getattr(ctx.command, "__auto_defer__", None))
-            is not None
-        ):
-            await cmd_auto_defer(ctx)
-        elif (
             ctx.command is not None
             and (
                 cmd_auto_defer := getattr(ctx.command.callback, "__auto_defer__", None)
