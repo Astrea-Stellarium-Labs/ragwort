@@ -89,6 +89,10 @@ class RagwortSlashCommand(discord.SlashCommand):
             if param.annotation is not param.empty and param_info.input_type is None:
                 param_info.input_type = param.annotation
 
+            # not strictly necessary, but helps with the next part
+            if not param_info.name:
+                param_info.name = param.name
+
             option = param_info.generate_option()
             if self.__original_kwargs__.get(f"_{option.name}_ragwort_autocomplete"):
                 option.autocomplete = self.__original_kwargs__[
