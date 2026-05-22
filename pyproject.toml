@@ -13,16 +13,12 @@ license-files = ["LICENSE"]
 keywords = ["ragwort", "pycord", "discord"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dynamic = ["version", "dependencies"]
 
 [project.urls]
 Homepage = "https://github.com/Astrea-Stellarium-Labs/ragwort"
-
-[tool.setuptools]
-packages = ["ragwort"]
 
 [tool.setuptools.dynamic]
 version = { attr = "ragwort.__version__" }
