@@ -121,14 +121,30 @@ def _wrap_invoke_application_command(
     ],
 ):
     async def new_invoke(ctx: discord.ApplicationContext) -> None:
-        if (
-            ctx.command is not None
-            and (
-                cmd_auto_defer := getattr(ctx.command.callback, "__auto_defer__", None)
-            )
-            is not None
-        ):
-            await cmd_auto_defer(ctx)
+        if ctx.command is not None:
+            if isinstance(ctx.command, discord.SlashCommandGroup):
+                option = ctx.interaction.data["options"][0]
+                command = discord.utils.find(
+                    lambda x: x.name == option["name"], ctx.command.subcommands
+                )
+
+                if command is not None:
+                    if isinstance(command, discord.SlashCommandGroup):
+                        sub_option = option["options"][0]
+                        sub_command = discord.utils.find(
+                            lambda x: x.name == sub_option["name"], command.subcommands
+                        )
+
+                        if (
+                            sub_command is not None
+                            and getattr(sub_command.callback, "__auto_defer__", None)
+                            is not None
+                        ):
+                            await sub_command.callback.__auto_defer__(ctx)
+                    elif getattr(command.callback, "__auto_defer__", None) is not None:
+                        await command.callback.__auto_defer__(ctx)
+            elif getattr(ctx.command.callback, "__auto_defer__", None) is not None:
+                await ctx.command.callback.__auto_defer__(ctx)
         elif (
             ctx.cog is not None
             and (cog_auto_defer := getattr(ctx.cog, "__cog_auto_defer__", None))
