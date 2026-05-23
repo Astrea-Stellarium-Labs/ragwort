@@ -130,6 +130,10 @@ class RagwortSlashCommand(discord.SlashCommand):
 
 
 class RagwortSlashCommandGroup(discord.SlashCommandGroup):
+    if typing.TYPE_CHECKING:
+
+        def __new__(cls, *args, **kwargs) -> typing.Self: ...
+
     def command(
         self, cls: type[_T] = RagwortSlashCommand, **kwargs
     ) -> typing.Callable[[typing.Callable], RagwortSlashCommand]:
