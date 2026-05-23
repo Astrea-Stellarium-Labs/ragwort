@@ -5,7 +5,7 @@ Unstable experiments with pycord.
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 from .auto_defer import *
