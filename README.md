@@ -25,16 +25,14 @@ By using a special function, you can specify what each argument/parameter in a f
 import discord
 import ragwort
 
-bot = discord.Bot(...)
-
-@ragwort.slash_command(description="Nice test command, huh?")
+@ragwort.slash_command()
 async def test(
     ctx: discord.ApplicationContext,
-    the_user: discord.Member = ragwort.Option(name="user", description="The user to ping."),
+    user: discord.Member = ragwort.Option("The user to ping."),
 ):
-    await ctx.respond(the_user.mention)
+    await ctx.respond(user.mention)
 
-bot.add_application_command(test)  # only needed if the command is not in a cog
+# bot.add_application_command(test) - only needed if the command is not in a cog
 ```
 
 > [!TIP]
@@ -47,15 +45,13 @@ bot.add_application_command(test)  # only needed if the command is not in a cog
 `ragwort` also supports defining subcommands in a similar way.
 
 ```python
-# see imports from last example
-
 math = ragwort.SlashCommandGroup("math", "Math related commands")
 advanced = math.create_subgroup("advanced", "Advanced math commands")
 
 @advanced.command()
 async def square_root(
     ctx: discord.ApplicationContext,
-    x: int = ragwort.Option(description="The number to find the square root of.")
+    x: int = ragwort.Option("The number to find the square root of.")
 ):
     await ctx.respond(x ** 0.5)
 ```
@@ -65,20 +61,16 @@ async def square_root(
 `ragwort` also provides support for [bridge commands](https://guide.pycord.dev/extensions/bridge):
 
 ```python
-import discord
 from discord.ext import bridge
-import ragwort
 
-bot = bridge.Bot(...)
-
-@ragwort.bridge_command(description="Nice test command, huh?")
-async def test(
+@ragwort.bridge_command()
+async def test_bridge(
     ctx: bridge.BridgeContext,
-    the_user: discord.Member = ragwort.BridgeOption(name="user", description="The user to ping."),
+    user: discord.Member = ragwort.BridgeOption("The user to ping."),
 ):
-    await ctx.respond(the_user.mention)
+    await ctx.respond(user.mention)
 
-bot.add_bridge_command(test)  # only needed if the command is not in a cog
+# bot.add_bridge_command(test_bridge) - only needed if the command is not in a cog
 ```
 
 > [!NOTE]
@@ -89,8 +81,8 @@ bot.add_bridge_command(test)  # only needed if the command is not in a cog
 If you're using any of the above[^2], `ragwort` also adds a new way of handling autocomplete functions for slash commands and bridge commands:
 
 ```python
-@ragwort.slash_command(name="animal")
-async def animal_command(
+@ragwort.slash_command()
+async def animal(
     ctx: discord.ApplicationContext,
     animal_type: str = ragwort.Option(
         "The type of animal.", choices=["Marine", "Land"]
@@ -102,7 +94,7 @@ async def animal_command(
     )
 
 
-@animal_command.autocomplete("animal")
+@animal.autocomplete("animal")
 async def animal_autocomplete(ctx: discord.AutocompleteContext):
     animal_type = ctx.options["animal_type"]
     if animal_type == "Marine":
