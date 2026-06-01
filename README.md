@@ -6,12 +6,20 @@
 
 Unstable experiments with pycord. An adaptation of [`tansy`](https://github.com/Astrea-Stellarium-Labs/tansy).
 
+## Installation
+
+```bash
+pip install ragwort
+```
+
 ## Slash Commands
 
-`ragwort` provides a unique way to define options for slash commands.
+### Options
 
-Instead of needing a decorator per option or to define the option in one huge list (or using awkward annotations), `ragwort` allows you to define each option in the function itself.
-By using a special metadata function, you can specify what each argument/parameter in a function should be like as an option, with ragwort smartly handling the rest for you.
+`ragwort` provides a different way to define options for slash commands.
+
+Instead of needing a decorator per option or to define the option in one huge list (or using awkward annotations), `ragwort` allows you to define each option in the function itself in a sensible, typehinter-friendly way.[^1]
+By using a special function, you can specify what each argument/parameter in a function should be like as an option, with `ragwort` smartly handling the rest for you.
 
 ```python
 import discord
@@ -34,7 +42,7 @@ bot.add_application_command(test)  # only needed if the command is not in a cog
 >
 > `ragwort` frequently also aliases classes and functions to make overlap between `ragwort` and `discord` easier to avoid; for example, instead of `ragwort.slash_command`, you could use `ragwort_slash_command`.
 
-### Subcommands
+#### Subcommands
 
 `ragwort` also supports defining subcommands in a similar way.
 
@@ -52,7 +60,7 @@ async def square_root(
     await ctx.respond(x ** 0.5)
 ```
 
-### Bridge Commands
+#### Bridge Commands
 
 `ragwort` also provides support for [bridge commands](https://guide.pycord.dev/extensions/bridge):
 
@@ -73,9 +81,12 @@ async def test(
 bot.add_bridge_command(test)  # only needed if the command is not in a cog
 ```
 
+> [!NOTE]
+> Bridge groups are also supported through `@ragwort.bridge_group`.
+
 ### Autocomplete
 
-`ragwort` also adds a new way of handling autocomplete functions for slash commands and bridge commands:
+If you're using any of the above[^2], `ragwort` also adds a new way of handling autocomplete functions for slash commands and bridge commands:
 
 ```python
 @ragwort.slash_command(name="animal")
@@ -163,3 +174,7 @@ async def my_command(self, ctx: discord.ApplicationContext):
 
 - Auto defer is applied in the following order: command level, then cog level, then bot level. This means that if a command has auto defer disabled (with `enabled=False`), but the cog or bot has it enabled, the command will *not* be deferred. This is useful for commands that send modals.
 - Auto defer partially works with bridge commands; the slash variant of the command will be deferred, but the prefixed variant will not be.
+
+
+[^1]: While not documented anywhere, Pycord allows using `discord.Option` as a default value for parameters in a slash command function, like what `ragwort` does, and it will be properly parsed. However, this comes with a number of drawbacks; `discord.Option` expects a type to be provided to it, thus ruining much of the point of this style, typehinters will likely complain about `discord.Option` not being the correct type as a default, and bridge commands will fail. `ragwort` has none of these drawbacks.
+[^2]: This type of autocomplete only works for `RagwortSlashCommand`, `RagwortSlashCommandGroup`, and the bridge command variants.
